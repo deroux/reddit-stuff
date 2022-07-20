@@ -1,16 +1,16 @@
 #!/usr/bin/python
 
-import moviepy.editor as mpy
-import gizeh as gz
-from math import pi
 import re
 import sys
+from math import pi
+
+import gizeh as gz
 import librosa
+import moviepy.editor as mpy
 
-
-
-
-VIDEO_SIZE = (640, 360)
+WIDTH = 640    
+HEIGHT = 360
+VIDEO_SIZE = (WIDTH, HEIGHT)
 BLUE = (59/255, 89/255, 152/255)
 BLACK = (0/255, 0/255, 0/255)
 GREEN = (176/255, 210/255, 63/255)
@@ -19,13 +19,13 @@ WHITE_GIZEH = (1, 1, 1)
 OUTPUT = "Let's build together"
 
 def render_text(t):
-    surface = gz.Surface(640, 360, bg_color=WHITE_GIZEH)
+    surface = gz.Surface(WIDTH, HEIGHT, bg_color=BLACK)
     arr = OUTPUT
     offset = 60
     for txt in arr:
         text = gz.text(
             txt, fontfamily="Robika",
-            fontsize=20, fontweight='bold', fill=BLACK, xy=(320, offset))
+            fontsize=20, fontweight='bold', fill=WHITE_GIZEH, xy=(WIDTH/2, offset))
         text.draw(surface)
         offset = offset + 20
     return surface.get_npimage()
@@ -34,7 +34,9 @@ def normalize_write_text(write_text):
     n = 50
     curr = n
     arr = []
-    while (len(write_text) > n):
+    while ((len(write_text) > n) and (len(write_text) > curr)):
+        print(write_text)
+        print(curr)
         if (write_text[curr] == ' '):
             arr.append(write_text[0:curr])
             print(write_text[0:curr])

@@ -1,9 +1,12 @@
-from concurrent.futures import process
-import os
-import sys
 import json
-from moviepy.editor import *
+import math
+import os
 import re
+import sys
+from concurrent.futures import process
+
+from moviepy.editor import *
+
 
 def FindURLs(string):
     # findall() has been used 
@@ -14,6 +17,49 @@ def FindURLs(string):
 
 def scrape():
     os.system('python3 scrapeHottest.py')
+
+def normalize_text_for_tts(text):
+    # only necessary for tts
+    # append point to end of line as otherwise TTS might get confused, compare... I was kidnapped. AMA without point
+    if '<3' in text:
+        text = text.replace('<3', '')
+
+    text = text.strip()
+    if text.endswith('.') or text.endswith('?') or text.endswith('!'):
+        print("ok...")
+    else:
+        text = text + '.'
+        print('###############')
+        print(text)
+
+    # tts has problems with multiple points
+    while '..' in text:
+        text = text.replace('..', '.')
+        print(text)
+        print('replaced')
+
+    text = text.strip()
+    # many times it is something like advice/experience
+    text = text.replace('/', ' or ')
+    text = text.replace('.', '. ')
+    text = text.replace('?', '? ')
+    text = text.replace('!', '! ')
+    text = text.replace(',.', '. ')
+    text = text.replace('.,.', '. ')
+    text = text.replace(' \'', ' ')  # can't handle apostrophes
+    text = text.replace('\' ', ' ')  # can't handle apostrophes
+    text = text.strip()
+
+    while '..' in text:
+        text = text.replace('..', '.')
+        print(text)
+        print('replaced')
+    print(text)
+
+    # add proper commas
+    text = text.replace(', ', ',')
+    text = text.replace(',', ', ')
+    return text
 
 def get_all_textfiles():
     path = 'textfiles'
@@ -32,18 +78,29 @@ def get_file_content(file):
     processing_text.append(data['title'])
     if (data['selftext'] != ''):
         processing_text.append(data['selftext'])
+    #try:
     iterate_recursion_comments(data['comments'], processing_text)
+    #except Exception as e:
+    ##    print('Something went wrong with file..' + file)
+    #    print(e)
+    #    sys.exit(1)
+        
     return processing_text
 
 def iterate_recursion_comments(data, texts):
     for key in data.keys():
-            
         el = data[key]
         if ('body' in el):
+            if (isinstance(el, dict)):
+                body = el.get('body')
+            else:
+                body = el
             # maybe move this check to scraping from reddit script
-            if (len(FindURLs(el['body'])) == 0):
-                texts.append(el['body'])
-                iterate_recursion_comments(el['comments'], texts)
+            if (len(FindURLs(body)) == 0):
+                texts.append(body)
+                if (isinstance(el, dict)):
+                    if ('comments' in el) and (el.get('comments')):
+                        iterate_recursion_comments(el['comments'], texts)
         else:
             texts.append(el)
 
@@ -57,52 +114,113 @@ def merge_videos(videos, a):
         audios.append(vid.audio)
 
     final_video = concatenate_videoclips(vids)
-    final = final_video.fx(vfx.speedx, 2.5)
+    # just for gTTS
+    # final = final_video.fx(vfx.speedx, 2)
 
     # final_video.set_audio(concatenate_audioclips(audios))
-    final.write_videofile("videos/{a}/final_video.mp4".format(a=a), codec='libx264', audio_codec='aac', fps=10, remove_temp=True)
+    final_video.write_videofile("videos/{a}/final_video.mp4".format(
+        a=a), codec='libx264', audio_codec='aac', fps=10, remove_temp=True)
+
+def cleanup(a):
+    path = "sounds/{a}".format(a=a)
+    os.system('rm -rf {path}'.format(path=path))
 
 if __name__ == '__main__':   # will only run when script1.py is run directly
     # scrape();
     # get all text files
     files = get_all_textfiles();
 
-    # TODO: for file in files:
-    file = files[0]
-    print(file)
+    a = -1
+    for file in files:
+        a = a + 1
+        print('processing... ' + file)
+        # get array with text body data from file content
+        file_content = []
+        file_content = get_file_content(file)
+        
+        processing_text = []
+        for text in file_content:
+            go = True
+            txt = text
+            n = 800
 
-    # get array with text body data from file content
-    processing_text = []
-    processing_text = get_file_content(file)
+            if (len(txt) <= n):
+                processing_text.append(txt)
+            else:
+                while(len(txt) > n):
+                    n = 700
+                    split = len(txt)
+                    while (split > n):
+                        split = math.ceil(split / 2)
 
-    # create audio files
-    a = 0
-    i = 0
-    path = "sounds/{a}".format(a=a)
+                    while(txt[split] != ' '): # we dont want half cutted words
+                        if (len(txt) > split + 1):
+                            split += 1
+                        else: 
+                            break
 
-    if (os.path.exists(path) == False):
-        os.mkdir(path)
-    
-    for text in processing_text:
-        os.system('python3 text_to_speech.py \"{text}\" "sounds/{a}/_{i}.mp3"'.format(text=text, a=a, i=i))
-        i = i + 1
-    
-    # render video with audio files
-    i = 0
-    path = "videos/{a}".format(a=a)
-    if (os.path.exists(path) == False):
-        os.mkdir(path)
-    
-    videos = []
-    for text in processing_text:
-        video_name = "videos/{a}/_{i}.mp4".format(a=a, i=i)
-        # os.system('python3 video.py \"{text}\" "sounds/{a}/_{i}.mp3" "videos/{a}/_{i}.mp4"'.format(text=text, a=a, i=i))
+                    part = txt[:split]
+                    txt = txt[split:]
+                    processing_text.append(part)
+                processing_text.append(txt)
 
-        if (os.path.exists(video_name)):
-            videos.append(video_name)
-        i = i + 1
-    
-    merge_videos(videos, a)
-    print('done...')
+        # create audio files
+        i = 0
+        path = "sounds/{a}".format(a=a)
+
+        if (os.path.exists(path) == False):
+            os.mkdir(path)
+        
+        for text in processing_text:
+            soundsFile = "sounds/{a}/_{i}.mp3".format(a=a, i=i)
+            if os.path.exists(soundsFile):
+                print(soundsFile)
+                print('sounds file existing ... skipping')
+                i = i + 1
+                continue
+            text = normalize_text_for_tts(text)
+            print('text_to_speech... ' + file + " ...sounds/{a}/_{i}.mp3".format(a=a, i=i))
+            os.system('python3 text_to_speech.py \"{text}\" "sounds/{a}/_{i}.mp3"'.format(text=text, a=a, i=i))
+
+            if os.path.exists(soundsFile):
+                # check if file size is huge, something might have gone wrong
+                print(os.path.getsize(soundsFile))
+                print(1024*1024*5)
+                while (os.path.getsize(soundsFile) > 1024*1024*5): # problem when bigger than 5 MB probably
+                    # retry
+                    os.system(
+                        'python3 text_to_speech.py \"{text}\" "sounds/{a}/_{i}.mp3"'.format(text=text, a=a, i=i))
+
+                print(soundsFile)
+                print('sounds file existing ... skipping')
+                i = i + 1
+            continue
+        
+        # render video with audio files
+        i = 0
+        path = "videos/{a}".format(a=a)
+        if (os.path.exists(path) == False):
+            os.mkdir(path)
+        
+        videos = []
+        for text in processing_text:
+            print('creating part videos... ' + file)
+            video_name = "videos/{a}/_{i}.mp4".format(a=a, i=i)
+            if os.path.exists(video_name):
+                print('video file existing ... skipping')
+                videos.append(video_name)
+                i = i + 1
+                continue
+            
+            os.system('python3 video.py \"{text}\" "sounds/{a}/_{i}.mp3" "videos/{a}/_{i}.mp4"'.format(text=text, a=a, i=i))
+
+            if (os.path.exists(video_name)):
+                videos.append(video_name)
+            i = i + 1
+        
+        merge_videos(videos, a)
+
+        # cleanup(a)
+        print('done...')
         
 
