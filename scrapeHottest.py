@@ -1,10 +1,16 @@
-import praw
-import pandas as pd
-from praw.models import MoreComments
-import re
 import json
+import re
+from itertools import chain
+
+import pandas as pd
+import praw
+from praw.models import MoreComments
 
 DEBUG = 0
+
+# TODO: improve to fetch category based on keywords
+def getYoutubeCategory(keywords):
+    return str(22)
 
 def normalize_text(text):
     text = text.replace('\n\n', '')
@@ -31,9 +37,24 @@ LIMIT_SCORE_COMMENTS_LEVEL2 = 5
 posts = {}
 print('scraping top AMAs for this week...')
 ama_subreddit = reddit.subreddit('ama')
+i = 0
 for post in ama_subreddit.top('week'):
     if (post.score < LIMIT_SCORE):
         continue
+
+    # collect metadata for youtube upload and write to file
+    text = post.title + post.selftext
+    doc = nlp(text)
+    # print(doc.ents)
+    keywords = ','.join(map(str, chain.from_iterable(doc.ents)))
+    category = getYoutubeCategory(doc.ents)
+    filename = "info_{i}.txt".format(i=i)
+    with open(filename, "w") as file:
+        file.write(post.title + "\n")
+        file.write(post.selftext + 'See ' + post.url + "\n")
+        file.write(keywords + "\n")  # keywords
+        file.write(category + "\n")
+    i = i + 1
 
     p = {}
     p['score'] = post.score

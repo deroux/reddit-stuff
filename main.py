@@ -25,22 +25,18 @@ def normalize_text_for_tts(text):
         text = text.replace('<3', '')
 
     text = text.strip()
-    if text.endswith('.') or text.endswith('?') or text.endswith('!'):
-        print("ok...")
-    else:
+    if not (text.endswith('.') or text.endswith('?') or text.endswith('!')):
         text = text + '.'
-        print('###############')
-        print(text)
 
     # tts has problems with multiple points
     while '..' in text:
         text = text.replace('..', '.')
-        print(text)
-        print('replaced')
 
     text = text.strip()
     # many times it is something like advice/experience
     text = text.replace('/', ' or ')
+    text = text.replace(':', '.')
+    text = text.replace('. ', '.')
     text = text.replace('.', '. ')
     text = text.replace('?', '? ')
     text = text.replace('!', '! ')
@@ -52,9 +48,6 @@ def normalize_text_for_tts(text):
 
     while '..' in text:
         text = text.replace('..', '.')
-        print(text)
-        print('replaced')
-    print(text)
 
     # add proper commas
     text = text.replace(', ', ',')
@@ -171,28 +164,33 @@ if __name__ == '__main__':   # will only run when script1.py is run directly
         if (os.path.exists(path) == False):
             os.mkdir(path)
         
+        files_re_check = []
         for text in processing_text:
             soundsFile = "sounds/{a}/_{i}.mp3".format(a=a, i=i)
             if os.path.exists(soundsFile):
-                print(soundsFile)
-                print('sounds file existing ... skipping')
+                #print(soundsFile)
+                #print('sounds file existing ... skipping')
                 i = i + 1
                 continue
             text = normalize_text_for_tts(text)
-            print('text_to_speech... ' + file + " ...sounds/{a}/_{i}.mp3".format(a=a, i=i))
+            #print('text_to_speech... ' + file + " ...sounds/{a}/_{i}.mp3".format(a=a, i=i))
             os.system('python3 text_to_speech.py \"{text}\" "sounds/{a}/_{i}.mp3"'.format(text=text, a=a, i=i))
 
             if os.path.exists(soundsFile):
                 # check if file size is huge, something might have gone wrong
+                print(len(text)*1024*10)
                 print(os.path.getsize(soundsFile))
-                print(1024*1024*5)
+                if (len(text)*1024*10 < os.path.getsize(soundsFile)):
+                    files_re_check.append(soundsFile)
+                    print('SDKLFSDJKFDSFKLSFSDJKL')
+
                 while (os.path.getsize(soundsFile) > 1024*1024*5): # problem when bigger than 5 MB probably
                     # retry
                     os.system(
                         'python3 text_to_speech.py \"{text}\" "sounds/{a}/_{i}.mp3"'.format(text=text, a=a, i=i))
 
-                print(soundsFile)
-                print('sounds file existing ... skipping')
+                # print(soundsFile)
+                # print('sounds file existing ... skipping')
                 i = i + 1
             continue
         
@@ -204,10 +202,10 @@ if __name__ == '__main__':   # will only run when script1.py is run directly
         
         videos = []
         for text in processing_text:
-            print('creating part videos... ' + file)
+            # print('creating part videos... ' + file)
             video_name = "videos/{a}/_{i}.mp4".format(a=a, i=i)
             if os.path.exists(video_name):
-                print('video file existing ... skipping')
+                # print('video file existing ... skipping')
                 videos.append(video_name)
                 i = i + 1
                 continue
@@ -222,5 +220,6 @@ if __name__ == '__main__':   # will only run when script1.py is run directly
 
         # cleanup(a)
         print('done...')
+        print(files_re_check)
         
 
