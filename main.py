@@ -18,12 +18,14 @@ def FindURLs(string):
 def scrape():
     os.system('python3 scrapeHottest.py')
 
+def scrapeReddit(subreddit, interval):
+    os.system('python3 scrapeReddit.py "{subreddit}" "{interval}"'.format(subreddit=subreddit, interval=interval))
+
 def normalize_text_for_tts(text):
     # only necessary for tts
     # append point to end of line as otherwise TTS might get confused, compare... I was kidnapped. AMA without point
     if '<3' in text:
         text = text.replace('<3', '')
-
     text = text.strip()
     if not (text.endswith('.') or text.endswith('?') or text.endswith('!')):
         text = text + '.'
@@ -34,6 +36,7 @@ def normalize_text_for_tts(text):
 
     text = text.strip()
     # many times it is something like advice/experience
+    text = text.replace('-', '.')
     text = text.replace('/', ' or ')
     text = text.replace(':', '.')
     text = text.replace('. ', '.')
@@ -54,7 +57,7 @@ def normalize_text_for_tts(text):
     text = text.replace(',', ', ')
     return text
 
-def get_all_textfiles():
+def get_all_scraped_textfiles():
     path = 'textfiles'
     list_of_files = []
 
@@ -120,12 +123,18 @@ def cleanup(a):
 
 if __name__ == '__main__':   # will only run when script1.py is run directly
     # scrape();
-    # get all text files
-    files = get_all_textfiles();
+    # scrapeReddit('ama', 'week')
+
+    # get all scraped text files
+    files = get_all_scraped_textfiles()
 
     a = -1
     for file in files:
-        a = a + 1
+        # hottest_0.json
+        a = file.split('/')[1]
+        a = a.split('_')[1]
+        a = a.split('.')[0]
+        print(a)
         print('processing... ' + file)
         # get array with text body data from file content
         file_content = []
@@ -214,7 +223,7 @@ if __name__ == '__main__':   # will only run when script1.py is run directly
 
             if (os.path.exists(video_name)):
                 videos.append(video_name)
-            i = i + 1
+                i = i + 1
         
         merge_videos(videos, a)
 
