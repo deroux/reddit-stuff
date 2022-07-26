@@ -27,8 +27,13 @@ def directoryIsEmpty(path):
 
 
 def scrapeReddit(subreddit, interval):
+    print('executing os... scrapereddit')
     os.system('python3 scrapeReddit.py "{subreddit}" "{interval}"'.format(
         subreddit=subreddit, interval=interval))
+
+def createVideos():
+    print('executing create videos..')
+    os.system('python3 main.py')
 
 sched = BlockingScheduler()
 subreddits = ['AskReddit',
@@ -62,7 +67,8 @@ def write_index(i):
     with open("i.txt", "w") as file:
         file.write(str(i))
 
-@sched.scheduled_job('interval', minutes=30)
+
+@sched.scheduled_job('interval', minutes=1)
 def check_data_available():
     print(f"{bcolors.OKCYAN} Checking data available for upload ... {bcolors.ENDC}")
     if (directoryIsEmpty('textfiles') and directoryIsEmpty('sounds') and directoryIsEmpty('videos') and ('infofiles')):
@@ -71,8 +77,10 @@ def check_data_available():
         i = read_index()
         if (i < len(subreddits)):
             sub = subreddits[i]
-            print(f"{bcolors.WARNING} Scraping subreddit '{sub}' for 'week'... {bcolors.ENDC}")
+            print(
+                f"{bcolors.WARNING} Scraping subreddit '{sub}' for 'week'... {bcolors.ENDC}")
             scrapeReddit(sub, 'week')
+            createVideos()
         else:
             write_index(0)
     else:

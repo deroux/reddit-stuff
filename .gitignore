@@ -5,7 +5,7 @@
 .DS_Store
 *.mp3
 *.mp4
-/infofiles/
-/textfiles/
-/videos/
-/sounds/
+/infofiles/*
+/textfiles/*
+/videos/*
+/sounds/*

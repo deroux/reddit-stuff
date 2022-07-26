@@ -25,3 +25,7 @@ ID	Category name
 27	Education
 28	Science & Technology
 29	Nonprofits & Activism
+
+
+title length: 100
+description: 5000

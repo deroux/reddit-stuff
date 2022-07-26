@@ -52,7 +52,7 @@ if __name__ == '__main__':   # will only run when script1.py is run directly
     r_subreddit = reddit.subreddit(sub)
     i = 0
     for post in r_subreddit.top(interval):
-        if (i > 20):
+        if (i >= 2):
             break
 
         if (post.score < LIMIT_SCORE):

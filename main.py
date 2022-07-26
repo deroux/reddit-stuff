@@ -35,6 +35,7 @@ def normalize_text_for_tts(text):
         text = text.replace('..', '.')
 
     text = text.strip()
+    text = text.replace(' bc ', ' because ')
     text = text.replace(':)', '')
     text = text.replace(';)', '')
     text = text.replace(':,)', '')
@@ -50,16 +51,35 @@ def normalize_text_for_tts(text):
     text = text.replace('\' ', ' ')  # can't handle apostrophes
     text = text.strip()
 
+    while '?!' in text:
+        text = text.replace('?!', '?')
     while '..' in text:
         text = text.replace('..', '.')
     while '\\' in text:
         text = text.replace('\\', '')
     while '/' in text:
         text = text.replace('/', '')
+    while '*' in text:
+        text = text.replace('*', '')
+    while '??' in text:
+        text = text.replace('??', '?')
+    while '!!' in text:
+        text = text.replace('!!', '!')
+    while '>' in text:
+        text = text.replace('>', '')
+    while '<' in text:
+        text = text.replace('<', '')
+    while '=' in text:
+        text = text.replace('=', '')
+    while '&' in text:
+        text = text.replace('&', '')
+    while '_' in text:
+        text = text.replace('_', '')
 
     # add proper commas
     text = text.replace(', ', ',')
     text = text.replace(',', ', ')
+    text = text.replace('. .', '.')
     return text
 
 def get_all_scraped_textfiles():
@@ -179,6 +199,8 @@ if __name__ == '__main__':   # will only run when script1.py is run directly
             os.mkdir(path)
         
         files_re_check = []
+        if (len(processing_text) > 100):
+            processing_text = processing_text[0:99]
         for text in processing_text:
             soundsFile = "sounds/{a}/_{i}.mp3".format(a=a, i=i)
             if os.path.exists(soundsFile):

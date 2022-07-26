@@ -29,7 +29,15 @@ if __name__ == '__main__':   # will only run when script1.py is run directly
         description = lines[1]
         keywords = lines[2]
         category = lines[3]
-    
+
+    # Youtube allows only 100 chars in title and 5000 in description
+    if (len(title) > 100):
+        title = title[:98]
+        title = title + '..'
+    if (len(description) > 5000):
+        description = description[:4098]
+        description = description + '..'
+
     # upload video
     os.system('python3 upload_video.py --file {v} --title "{t}" --description "{d}" --category {c} --keywords "{k}" --privacyStatus public'.format(v=videoFile, t=title, d=description, c=category, k=keywords))
     # upload thumbnail
