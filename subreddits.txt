@@ -1,5 +1,4 @@
 AskReddit
-gaming
 worldnews
 science
 movies

@@ -35,14 +35,15 @@ def normalize_text_for_tts(text):
         text = text.replace('..', '.')
 
     text = text.strip()
+    text = text.replace(':)', '')
+    text = text.replace(';)', '')
+    text = text.replace(':,)', '')
     # many times it is something like advice/experience
     text = text.replace('-', '.')
     text = text.replace('/', ' or ')
     text = text.replace(':', '.')
     text = text.replace('. ', '.')
     text = text.replace('.', '. ')
-    text = text.replace('?', '? ')
-    text = text.replace('!', '! ')
     text = text.replace(',.', '. ')
     text = text.replace('.,.', '. ')
     text = text.replace(' \'', ' ')  # can't handle apostrophes
@@ -51,6 +52,10 @@ def normalize_text_for_tts(text):
 
     while '..' in text:
         text = text.replace('..', '.')
+    while '\\' in text:
+        text = text.replace('\\', '')
+    while '/' in text:
+        text = text.replace('/', '')
 
     # add proper commas
     text = text.replace(', ', ',')

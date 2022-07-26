@@ -43,7 +43,7 @@ if __name__ == '__main__':   # will only run when script1.py is run directly
 
     # posts = {}
     # hot_posts = reddit.subreddit('ama').hot(limit=1)
-    LIMIT_SCORE = 50
+    LIMIT_SCORE = 100
     LIMIT_SCORE_COMMENTS_LEVEL1 = 5
     LIMIT_SCORE_COMMENTS_LEVEL2 = 5
 
@@ -54,6 +54,8 @@ if __name__ == '__main__':   # will only run when script1.py is run directly
     for post in r_subreddit.top(interval):
         if (post.score < LIMIT_SCORE):
             continue
+
+        print('Using post with score..' + str(post.score))
 
         # collect metadata for youtube upload and write to file
         text = post.title + post.selftext

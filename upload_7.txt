@@ -1,0 +1,3 @@
+Please visit this URL to authorize this application: https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=213899395837-hq606u88lkbps58kmu6jpcbjao0qrr7s.apps.googleusercontent.com&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fyoutube.force-ssl&state=p2gcmOWX5EShDeP6FZUvm25zaFDL9G&prompt=consent&access_type=offline
+Enter the authorization code: Uploading file...
+Video id 'OHz1SGeUwW0' was successfully uploaded.

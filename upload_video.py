@@ -65,6 +65,12 @@ https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
+# clear all data of video after successfull upload
+def cleanup_files(i):
+    os.system(f"rm -rf sounds/{i}/")
+    os.system(f"rm -rf videos/{i}/")
+    os.system(f"rm -rf infofiles/info_{i}.txt")
+    os.system("rm -rf textfiles/hottest_{i}.json")
 
 def get_authenticated_service(args):
   flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
@@ -123,6 +129,7 @@ def initialize_upload(youtube, options):
   os.system('python3 upload_thumbnail.py {id} {th}'.format(
       id=uploaded_video_id, th='thumbnail.jpg'))
 
+  cleanup_files()
 # This method implements an exponential backoff strategy to resume a
 # failed upload.
 

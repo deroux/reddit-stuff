@@ -10,7 +10,7 @@ DEBUG = 0
 
 # TODO: improve to fetch category based on keywords
 def getYoutubeCategory(keywords):
-    return str(22)
+    return str(24) # Entertainment
 
 def normalize_text(text):
     text = text.replace('\n\n', '')

@@ -1,0 +1,3 @@
+Uploading file...
+An HTTP error 400 occurred:
+b'{\n  "error": {\n    "code": 400,\n    "message": "The request metadata specifies an invalid or empty video title.",\n    "errors": [\n      {\n        "message": "The request metadata specifies an invalid or empty video title.",\n        "domain": "youtube.video",\n        "reason": "invalidTitle",\n        "location": "body.snippet.title",\n        "locationType": "other"\n      }\n    ]\n  }\n}\n'
