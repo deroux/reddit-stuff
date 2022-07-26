@@ -62,7 +62,7 @@ def write_index(i):
     with open("i.txt", "w") as file:
         file.write(str(i))
 
-@sched.scheduled_job('interval', seconds=5)
+@sched.scheduled_job('interval', minutes=30)
 def check_data_available():
     print(f"{bcolors.OKCYAN} Checking data available for upload ... {bcolors.ENDC}")
     if (directoryIsEmpty('textfiles') and directoryIsEmpty('sounds') and directoryIsEmpty('videos') and ('infofiles')):
